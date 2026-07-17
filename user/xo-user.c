@@ -99,12 +99,14 @@ static void task_io(int argc, void *argv[])
     int max_fd = *(int *) argv[3];
     struct xo_table xo_tlb;
     fd_set readset;
+    int wait_fd = read_attr ? max_fd : STDIN_FILENO;
 
     FD_ZERO(&readset);
     FD_SET(STDIN_FILENO, &readset);
-    FD_SET(device_fd, &readset);
+    if (read_attr)
+        FD_SET(device_fd, &readset);
 
-    int result = select(max_fd + 1, &readset, NULL, NULL, NULL);
+    int result = select(wait_fd + 1, &readset, NULL, NULL, NULL);
     if (result < 0) {
         printf("Error with select system call\n");
         exit(1);
